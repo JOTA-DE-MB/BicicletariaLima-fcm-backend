@@ -1,3 +1,17 @@
+// lib/firebaseAdmin.js
+
+const admin = require('firebase-admin');
+
+if (!admin.apps.length) {
+  admin.initializeApp({
+    credential: admin.credential.cert({
+      projectId: process.env.FIREBASE_PROJECT_ID,
+      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+      privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+    }),
+  });
+}
+
 const admin = require('firebase-admin');
 
 module.exports = async (req, res) => {
@@ -10,7 +24,7 @@ module.exports = async (req, res) => {
 
     if (!title || !body || (!targetUserId && !targetTopic)) {
       return res.status(400).json({
-        error: 'Campos obrigatórios ausentes: title, body e targetUserId ou targetTopic são necessários.'
+        error: 'Campos obrigatórios ausentes: title, body e targetUserId ou targetTopic são necessários.',
       });
     }
 
@@ -23,23 +37,27 @@ module.exports = async (req, res) => {
 
     const payload = {
       notification: {
-        title,
-        body,
-        sound: 'default'
+        title: title,
+        body: body,
+        sound: 'default',
       },
       data: {
         conversationId: conversationId || 'n/a',
-        senderId: senderId || 'n/a'
-      }
+        senderId: senderId || 'n/a',
+      },
     };
 
     const response = await admin.messaging().sendToTopic(target, payload);
 
     console.log('Mensagem enviada com sucesso:', response);
-    return res.status(200).json({ sucesso: true, messageId: response.messageId });
+
+    return res.status(200).json({ success: true, messageId: response.messageId });
 
   } catch (error) {
     console.error('Erro ao enviar mensagem:', error);
-    return res.status(500).json({ erro: 'Falha ao enviar notificação.', detalhes: error.message });
+    return res.status(500).json({
+      error: 'Falha ao enviar notificação.',
+      details: error.message,
+    });
   }
 };
