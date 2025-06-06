@@ -2,19 +2,19 @@ const admin = require('../lib/firebaseAdmin');
 
 module.exports = async (req, res) => {
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method Not Allowed. Use POST.' });
+    return res.status(405).json({ error: 'Método não permitido. Use POST.' });
   }
 
   try {
-    const { targetUserId, targetTopic, title, body, conversationId, senderId } = req.body;
+    const { conversationId, senderId, title, body, targetUserId, targetTopic } = req.body;
 
     if (!title || !body || (!targetUserId && !targetTopic)) {
       return res.status(400).json({
-        error: 'Missing required fields: title, body, and either targetUserId or targetTopic.',
+        error: 'Campos obrigatórios ausentes: title, body e targetUserId ou targetTopic são necessários.',
       });
     }
 
-    const target = targetUserId ? 'support_${targetUserId}' : targetTopic;
+    const target = targetUserId ? support_${targetUserId} : targetTopic;
 
     const payload = {
       notification: {
@@ -28,15 +28,24 @@ module.exports = async (req, res) => {
       },
     };
 
-    const response = await admin.messaging().sendToTopic(target, payload);
+    // --- CORREÇÃO APLICADA AQUI: USANDO admin.messaging().send() ---
+    const response = await admin.messaging().send({
+      topic: target, // O alvo agora é uma propriedade 'topic' dentro do objeto de mensagem
+      ...payload,    // Inclui as propriedades notification e data
+    });
+    // --- FIM DA CORREÇÃO ---
 
-    console.log('Message sent successfully:', response);
+    console.log('Mensagem enviada com sucesso:', response);
     return res.status(200).json({ success: true, messageId: response.messageId });
 
   } catch (error) {
-    console.error('Error sending notification:', error);
+    console.error('Erro ao enviar mensagem:', error);
+    console.error('Detalhes do erro:', error.message);
+    console.error('Nome do erro:', error.name);
+    console.error('Stack do erro:', error.stack);
+
     return res.status(500).json({
-      error: 'Failed to send notification.',
+      error: 'Falha ao enviar notificação.',
       details: error.message,
     });
   }
