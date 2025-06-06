@@ -14,7 +14,7 @@ module.exports = async (req, res) => {
       });
     }
 
-    const target = targetUserId ? support_${targetUserId} : targetTopic;
+    const target = targetUserId ? 'support_${targetUserId}' : targetTopic;
 
     const payload = {
       notification: {
