@@ -1,18 +1,8 @@
-// lib/firebaseAdmin.js
+// api/sendNotifications.js
 
-const admin = require('firebase-admin');
+import admin from '../lib/firebaseAdmin.js';
 
-if (!admin.apps.length) {
-  const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_KEY);
-
-  admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
-  });
-}
-
-const admin = require('firebase-admin');
-
-module.exports = async (req, res) => {
+export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Método não permitido. Use POST.' });
   }
@@ -26,17 +16,12 @@ module.exports = async (req, res) => {
       });
     }
 
-    let target;
-    if (targetUserId) {
-      target = support_${targetUserId};
-    } else {
-      target = targetTopic;
-    }
+    const target = targetUserId ? support_${targetUserId} : targetTopic;
 
     const payload = {
       notification: {
-        title: title,
-        body: body,
+        title,
+        body,
         sound: 'default',
       },
       data: {
@@ -48,7 +33,6 @@ module.exports = async (req, res) => {
     const response = await admin.messaging().sendToTopic(target, payload);
 
     console.log('Mensagem enviada com sucesso:', response);
-
     return res.status(200).json({ success: true, messageId: response.messageId });
 
   } catch (error) {
@@ -58,4 +42,4 @@ module.exports = async (req, res) => {
       details: error.message,
     });
   }
-};
+}
