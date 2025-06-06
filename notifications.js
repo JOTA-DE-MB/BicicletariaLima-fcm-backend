@@ -1,8 +1,6 @@
-// api/notifications.js
+const admin = require('../lib/firebaseAdmin');
 
-import admin from '../lib/firebaseAdmin.js';
-
-export default async function handler(req, res) {
+module.exports = async (req, res) => {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed. Use POST.' });
   }
@@ -42,4 +40,4 @@ export default async function handler(req, res) {
       details: error.message,
     });
   }
-}
+};
