@@ -16,6 +16,11 @@ module.exports = async (req, res) => {
 
     const target = targetUserId ? 'support_${targetUserId}' : targetTopic;
 
+	// --- NOVO LOG DE DEPURACAO ---
+    console.log('sendNotifications.js: Valor do tópico sendo enviado:', target);
+    // --- FIM NOVO LOG DE DEPURACAO ---
+
+
     const payload = {
       notification: {
         title,
