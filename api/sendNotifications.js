@@ -14,18 +14,13 @@ module.exports = async (req, res) => {
       });
     }
 
-    // --- CORREÇÃO FINAL AQUI: USANDO BACKTICKS PARA TEMPLATE LITERAL ---
-    const target = targetUserId ? `support_${targetUserId}`: targetTopic;
-    // --- FIM DA CORREÇÃO ---
-
-    // Este log foi útil para encontrar o problema, mas pode ser removido agora
-    // console.log('sendNotifications.js: Valor do tópico sendo enviado:', target);
+    const target = targetUserId ? `support_${targetUserId}` : targetTopic;
 
     const payload = {
       notification: {
         title,
         body,
-        sound: 'default',
+        // CORREÇÃO AQUI: 'sound' REMOVIDO DO OBJETO 'notification'
       },
       data: {
         conversationId: conversationId || 'n/a',
@@ -33,12 +28,10 @@ module.exports = async (req, res) => {
       },
     };
 
-    // --- Método de envio atualizado para admin.messaging().send() ---
     const response = await admin.messaging().send({
       topic: target,
       ...payload,
     });
-    // --- FIM DA ATUALIZAÇÃO ---
 
     console.log('Message sent successfully:', response);
     return res.status(200).json({ success: true, messageId: response.messageId });
