@@ -43,11 +43,11 @@ module.exports = async (req, res) => {
         const isSenderAdmin = senderData?.isAdmin || false;
 
         if (isSenderAdmin) {
-          // ADMIN enviou mensagem para um USUÁRIO específico
+          // ADMIN enviou mensagem para um usuario específico
           if (!recipientId) {
             return res.status(400).json({ error: 'recipientId is required for admin support messages.' });
           }
-          const recipientDoc = await db.collection('usuários').doc(recipientId).get();
+          const recipientDoc = await db.collection('usuarios').doc(recipientId).get();
           const recipientData = recipientDoc.data();
           fcmTarget = recipientData?.fcmToken; // Token do usuário destinatário
           if (!fcmTarget) {
@@ -67,7 +67,7 @@ module.exports = async (req, res) => {
         if (!recipientId) {
           return res.status(400).json({ error: 'recipientId is required for appointment confirmation.' });
         }
-        const userDoc = await db.collection('usuários').doc(recipientId).get();
+        const userDoc = await db.collection('usuarios').doc(recipientId).get();
         const userData = userDoc.data();
         fcmTarget = userData?.fcmToken; // Token do usuário que agendou
         if (!fcmTarget) {
@@ -85,7 +85,7 @@ module.exports = async (req, res) => {
         // Buscar todos os tokens FCM dos usuários selecionados
         const tokens = [];
         for (const userId of selectedUserIds) {
-          const userDoc = await db.collection('usuários').doc(userId).get();
+          const userDoc = await db.collection('usuarios').doc(userId).get();
           const userData = userDoc.data();
           if (userData?.fcmToken) {
             tokens.push(userData.fcmToken);
