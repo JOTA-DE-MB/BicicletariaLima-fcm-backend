@@ -165,8 +165,8 @@ module.exports = async (req, res) => {
         // Agora, notificar o admin sobre o novo agendamento
         const adminPayload = {
             notification: {
-                title: `Nova mensagem cliente: ${title}`, // Título para o admin
-                body: `Uma nova mensagem do cliente ${senderId}. Detalhes: ${body}`, // Corpo para o admin
+		title: `Novo Agendamento: ${title}`, // Título para o admin
+                body: `Um novo agendamento foi feito por ${senderId}. Detalhes: ${body}`, // Corpo para o admin
             },
             data: {
                 type: 'new_appointment_admin', // Um novo tipo para o app saber que é para o admin
