@@ -35,10 +35,10 @@ module.exports = async (req, res) => {
     switch (type) {
       case 'support_message':
         // Notificação de Mensagem de Suporte
-        // O remetente pode ser um usuário ou um administrador.
+        // O remetente pode ser um usuario ou um administrador.
         // Precisamos verificar o papel do remetente para decidir o destinatário.
 
-        const senderDoc = await db.collection('usuários').doc(senderId).get();
+        const senderDoc = await db.collection('usuarios').doc(senderId).get();
         const senderData = senderDoc.data();
         const isSenderAdmin = senderData?.isAdmin || false;
 
@@ -49,32 +49,32 @@ module.exports = async (req, res) => {
           }
           const recipientDoc = await db.collection('usuarios').doc(recipientId).get();
           const recipientData = recipientDoc.data();
-          fcmTarget = recipientData?.fcmToken; // Token do usuário destinatário
+          fcmTarget = recipientData?.fcmToken; // Token do usuario destinatário
           if (!fcmTarget) {
-            console.warn(`Token FCM não encontrado para o usuário ${recipientId}. Notificação de suporte do admin não enviada.`);
-            return res.status(200).json({ success: false, message: `Token FCM não encontrado para o usuário ${recipientId}.` });
+            console.warn(`Token FCM não encontrado para o usuario ${recipientId}. Notificação de suporte do admin não enviada.`);
+            return res.status(200).json({ success: false, message: `Token FCM não encontrado para o usuario ${recipientId}.` });
           }
-          console.log(`Admin ${senderId} enviando para usuário ${recipientId}. Token: ${fcmTarget.substring(0, 10)}...`);
+          console.log(`Admin ${senderId} enviando para usuario ${recipientId}. Token: ${fcmTarget.substring(0, 10)}...`);
         } else {
-          // USUÁRIO comum enviou mensagem para ADMINISTRADORES (via tópico)
+          // USUARIO comum enviou mensagem para ADMINISTRADORES (via tópico)
           fcmTarget = '/topics/admin_notifications';
-          console.log(`Usuário ${senderId} enviando para admins (tópico: admin_notifications).`);
+          console.log(`Usuario ${senderId} enviando para admins (tópico: admin_notifications).`);
         }
         break;
 
       case 'appointment_confirmation':
-        // Confirmação de Agendamento para o USUÁRIO (recipientId)
+        // Confirmação de Agendamento para o USUARIO (recipientId)
         if (!recipientId) {
           return res.status(400).json({ error: 'recipientId is required for appointment confirmation.' });
         }
         const userDoc = await db.collection('usuarios').doc(recipientId).get();
         const userData = userDoc.data();
-        fcmTarget = userData?.fcmToken; // Token do usuário que agendou
+        fcmTarget = userData?.fcmToken; // Token do usuario que agendou
         if (!fcmTarget) {
-          console.warn(`Token FCM não encontrado para o usuário ${recipientId}. Notificação de agendamento não enviada.`);
-          // Pode continuar para notificar o admin, mas o usuário não receberá.
+          console.warn(`Token FCM não encontrado para o usuario ${recipientId}. Notificação de agendamento não enviada.`);
+          // Pode continuar para notificar o admin, mas o usuario não receberá.
         }
-        console.log(`Confirmação de agendamento para usuário ${recipientId}. Token: ${fcmTarget ? fcmTarget.substring(0, 10) + '...' : 'N/A'}`);
+        console.log(`Confirmação de agendamento para usuario ${recipientId}. Token: ${fcmTarget ? fcmTarget.substring(0, 10) + '...' : 'N/A'}`);
         break;
 
       case 'promo':
@@ -82,7 +82,7 @@ module.exports = async (req, res) => {
         if (!selectedUserIds || !Array.isArray(selectedUserIds) || selectedUserIds.length === 0) {
           return res.status(400).json({ error: 'selectedUserIds (array of UIDs) is required for promo notifications.' });
         }
-        // Buscar todos os tokens FCM dos usuários selecionados
+        // Buscar todos os tokens FCM dos usuarios selecionados
         const tokens = [];
         for (const userId of selectedUserIds) {
           const userDoc = await db.collection('usuarios').doc(userId).get();
@@ -90,7 +90,7 @@ module.exports = async (req, res) => {
           if (userData?.fcmToken) {
             tokens.push(userData.fcmToken);
           } else {
-            console.warn(`Token FCM não encontrado para o usuário ${userId} durante o envio de promo.`);
+            console.warn(`Token FCM não encontrado para o usuario ${userId} durante o envio de promo.`);
           }
         }
         if (tokens.length === 0) {
